@@ -30,21 +30,70 @@ import androidx.navigation.NavController
 import com.rishav.notsy.domain.model.Note
 import com.rishav.notsy.presentation.viewmodel.NoteViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import com.rishav.notsy.data.entity.NoteEntity
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddNoteScreen(navController: NavController, viewModel: NoteViewModel = hiltViewModel()) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
         TextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
         TextField(value = content, onValueChange = { content = it }, label = { Text("Content") })
+
         Button(onClick = {
-            viewModel.addNote(Note(title = title, content = content, timestamp = System.currentTimeMillis()))
+            imagePickerLauncher.launch("image/*")
+        }) {
+            Text("Pick Image")
+        }
+
+        imageUri?.let { uri ->
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = uri,
+                ),
+                contentDescription = "Note Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .padding(top = 8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            Log.d("ImageURI", "Selected Image URI: ${uri}")
+
+        }
+
+        Button(onClick = {
+            viewModel.addNote(
+                Note(
+                    title = title,
+                    content = content,
+                    timestamp = System.currentTimeMillis(),
+                    imageUri = imageUri?.toString()
+                )
+            )
             navController.popBackStack()
         }) {
             Text("Save Note")
         }
     }
 }
+

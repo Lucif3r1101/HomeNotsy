@@ -9,7 +9,8 @@ data class NoteEntity(
     @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val title: String,
     val content: String,
-    val timestamp: Long
+    val timestamp: Long,
+    val imageUri: String? = null
 )
 
 fun NoteEntity.toDomain(): Note {
@@ -17,12 +18,13 @@ fun NoteEntity.toDomain(): Note {
         id = this.id,
         title = this.title,
         content = this.content,
-        timestamp = this.timestamp
+        timestamp = this.timestamp,
+        imageUri = this.imageUri
     )
 }
 
 
 
 fun Note.toEntity(): NoteEntity = NoteEntity(
-    id = id, title = title, content = content, timestamp = timestamp
+    id = id, title = title, content = content, timestamp = timestamp, imageUri = imageUri
 )

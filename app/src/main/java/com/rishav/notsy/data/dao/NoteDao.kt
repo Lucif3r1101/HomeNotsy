@@ -5,11 +5,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.rishav.notsy.data.entity.NoteEntity
+import com.rishav.notsy.domain.model.Note
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
     @Query("SELECT * FROM notes")
-    suspend fun getAllNotes(): List<NoteEntity>
+    fun getAllNotes(): Flow<List<NoteEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: NoteEntity)

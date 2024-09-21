@@ -8,8 +8,10 @@ import com.rishav.notsy.domain.usecase.DeleteNoteUseCase
 import com.rishav.notsy.domain.usecase.GetNotesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,9 +23,7 @@ class NoteViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _notesState = MutableStateFlow<List<Note>>(emptyList())
-
     val notesState: StateFlow<List<Note>> = _notesState.asStateFlow()
-
 
     init {
         loadNotes()
@@ -31,10 +31,13 @@ class NoteViewModel @Inject constructor(
 
     private fun loadNotes() {
         viewModelScope.launch {
-            val notes = getNotesUseCase()
-            _notesState.value = notes
+            getNotesUseCase()
+                .collect { notes ->
+                    _notesState.value = notes
+                }
         }
     }
+
 
     fun addNote(note: Note) = viewModelScope.launch {
         addNoteUseCase(note)

@@ -90,4 +90,8 @@ dependencies {
     // LiveData dependencies
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.runtime)
+
+    // koil
+    implementation(libs.coil.compose)
+
 }
